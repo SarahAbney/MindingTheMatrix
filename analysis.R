@@ -1,13 +1,26 @@
-rusin<-read.csv('rusin_mouthte.csv')
-AbneyT<-read.csv('ToiletTE.csv')
-AbneyF<-read.csv('FingerLip_TE.csv')
-TSB<-read.csv('CombinedTE_TSB.csv')
+# Author: Sarah E. Abney 
+# Affiliation:  UA ENVS PHD Graduate  
+#Purpose: Modelling the Matrix Manuscript Code 
+#----------------------------------
+#----------------------------------
+
+
+#--------------------------------#
+#        Loading Files...        #
+#--------------------------------#
+rusin<-read.csv('rusin_mouthte.csv')  #Loading Rusin et al 2002 TE Means and SD
+AbneyT<-read.csv('ToiletTE.csv')      #Loading TE of Toilet-to-Finger Trials (Means and SD)
+AbneyF<-read.csv('FingerLip_TE.csv')  #Loading TE of Finger-to-Lip Trials (Means and SD)
+TSB<-read.csv('CombinedTE_TSB.csv')   #Loading TE of Toilet-to-Finger & Finger-to-Lip Trials for each MEM (Means and SD)
 FBS<-read.csv('CombinedTE_FBS.csv')
 PBS<-read.csv('CombinedTE_PBS.csv')
 ASTM<-read.csv('CombinedTE_ASTM.csv')
-IRN<-read.csv('Abney_noromodel_ALLIR.csv')
-IRA<-read.csv('Abney_adenomodelALLIR.csv')
 
+
+
+#--------------------------------#
+#        Loading Programs...        #
+#--------------------------------#
 require(ggplot2)
 require(ggpubr)
 require(ggbreak) #If you use ggbreak in published research, please cite the following paper:S Xu, M Chen, T Feng, L Zhan, L Zhou, G Yu. Use ggbreak to effectively utilize plotting space to deal with large datasets and outliers. Frontiers in Genetics. 2021, 12:774846. doi: 10.3389/fgene.2021.774846
@@ -40,23 +53,18 @@ sd(rusin$TE[rusin$Organism=="PRD-1"])
 #sd of S. rubidea
 sd(rusin$TE[rusin$Organism=="S. Rubidea"])
 
-  #Summary 
-#  summary(rusin)
-  # Compute the analysis of variance
-#  R.aov <- aov(TE ~ Organism, data = rusin)
-  # Summary of the analysis
-#  summary(R.aov)
-  #Post-Hoc
-#  tukey.R.aov<-TukeyHSD(R.aov)
+#------------------------------------------------------------------------------------
+#                  STATS for Rsuin TE
+#------------------------------------------------------------------------------------
   
 #  tukey.R.aov
   
   kruskal.test(TE ~ Organism, data = rusin) 
   dunnTest(TE ~ Organism, data = rusin, method = "bh")
   
-#------------------------------------------------------
-
-
+#------------------------------------------------------------------------------------
+#                  Toilet-to-Finger 
+#------------------------------------------------------------------------------------
 #distribution of TE per INNOCULUM
 windows()
   ggplot(AbneyT)+geom_violin(aes(x=Inoculum,y=TE,fill=Inoculum),alpha=0.4,draw_quantiles=c(0.25,0.5,0.75))+
@@ -79,23 +87,19 @@ sd(AbneyT$TE[AbneyT$Innoculum=="FBS"])
 #sd of Tripartite
 sd(AbneyT$TE[AbneyT$Innoculum=="ASTM Soil Load"])
 
-
+#------------------------------------------------------------------------------------
+#                  STATS for TE
+#------------------------------------------------------------------------------------
 #Summary 
   summary(AbneyT)
-  # Compute the analysis of variance
-    # T.aov <- aov(TE ~ Innoculum, data = AbneyT)
-  kruskal.test(TE ~ Inoculum, data = AbneyT)
-  kruskal_effsize(TE ~ Inoculum, data = AbneyT)
-  # Summary of the analysis
-    # summary(T.aov)
-  #summary(F2HK.test)
-  #Post-Hoc
-    # tukey.T.aov<-TukeyHSD(T.aov)
-    # tukey.T.aov
+    kruskal.test(TE ~ Inoculum, data = AbneyT)
+    kruskal_effsize(TE ~ Inoculum, data = AbneyT)
   dunnTest(TE ~ Inoculum, data = AbneyT, method = "bh")
 
  
-#-----------------------------------------------------------------
+#------------------------------------------------------------------------------------
+#                  Finger-to-Lip 
+#------------------------------------------------------------------------------------
 
 
 #distribution of TE per INNOCULUM
@@ -121,20 +125,20 @@ sd(AbneyF$TE[AbneyF$Innoculum=="FBS"])
 #sd of Tripartite
 sd(AbneyF$TE[AbneyF$Innoculum=="ASTM Soil Load"])
 
+#------------------------------------------------------------------------------------
+#                  STATS for TE
+#------------------------------------------------------------------------------------
   #Summary 
   summary(AbneyF)
-  # Compute the analysis of variance
-    #F.aov <- aov(TE ~ Innoculum, data = AbneyF)
-  kruskal.test(TE ~ Inoculum, data = AbneyF)
-  kruskal_effsize(TE ~ Inoculum , data = AbneyF)
-  # Summary of the analysis
-  #summary(H2LK.test)
-  #Post-Hoc
-    #tukey.F.aov<-TukeyHSD(F.aov)
-    #tukey.F.aov
-  dunnTest(TE ~ Innoculum, data = AbneyF, method = "bh")
-  
-#-------------------------------------------------------------------
+    kruskal.test(TE ~ Inoculum, data = AbneyF)
+    kruskal_effsize(TE ~ Inoculum , data = AbneyF)
+  dunnTest(TE ~ Inoculum, data = AbneyF, method = "bh")
+
+#------------------------------------------------------------------------------------    
+#------------------------------------------------------------------------------------
+#   STATS for TE betweeon Toilet-to-Finer & Finger-to-Lip
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
   #STATs to see significance between Toilet and Lip TE as requested in review process
   wilcox_test(TE ~ Innoculum , data = TSB)
     wilcox_effsize(TE ~ Innoculum , data = TSB)
@@ -538,6 +542,12 @@ Fomite.MindingMatrix.R<-function(iterations){
   noro.matrix<- st(noro, digits = 15, add.median = TRUE, out="csv", file= 'R.sum_noro_model.csv')
 }
 Fomite.MindingMatrix.R(10000)
+
+#------------------------------
+#       Loading Files ...     #
+#------------------------------
+IRN<-read.csv('Abney_noromodel_ALLIR.csv')
+IRA<-read.csv('Abney_adenomodelALLIR.csv')
 
 
 #------------------------------------------------------------------------------------
