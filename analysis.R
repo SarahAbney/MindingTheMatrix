@@ -1,7 +1,12 @@
 rusin<-read.csv('rusin_mouthte.csv')
 AbneyT<-read.csv('ToiletTE.csv')
 AbneyF<-read.csv('FingerLip_TE.csv')
-
+TSB<-read.csv('CombinedTE_TSB.csv')
+FBS<-read.csv('CombinedTE_FBS.csv')
+PBS<-read.csv('CombinedTE_PBS.csv')
+ASTM<-read.csv('CombinedTE_ASTM.csv')
+IRN<-read.csv('Abney_noromodel_ALLIR.csv')
+IRA<-read.csv('Abney_adenomodelALLIR.csv')
 
 require(ggplot2)
 require(ggpubr)
@@ -13,16 +18,17 @@ require(triangulr)
 require(vtable)
 require(dplyr)
 require(FSA)
+require(effsize)
+require(rstatix)
                 
 
 #distribution of TE per organism
 windows()
-  pR<-ggplot(rusin, aes(x=Organism, y=TE, fill=Organism)) + 
-    geom_violin(trim=FALSE, draw_quantiles = c(0.25,0.5,0.75),alpha=0.7)+
-    geom_boxplot(width=0.1, fill="white") + theme_minimal()+
+   ggplot(rusin)+geom_violin(aes(x=Organism,y=TE,fill=Organism),alpha=0.4,draw_quantiles=c(0.25,0.5,0.75))+
+    geom_jitter(aes(x=Organism,y=TE),width=0.01,alpha=0.4)+
     scale_x_discrete(name="",labels=c(expression(italic('M. luteus')),"PRD-1",expression(italic('S. rubidea'))))+
-    scale_y_continuous(name="Transfer Efficiency (%)")
-  pR
+    scale_y_continuous(name="Transfer Efficiency (%)")+
+    theme_pubr()
 #standard deviations
 
 #sd of M. Luteus
@@ -53,11 +59,11 @@ sd(rusin$TE[rusin$Organism=="S. Rubidea"])
 
 #distribution of TE per INNOCULUM
 windows()
-  pT<-ggplot(AbneyT, aes(x=Innoculum, y=TE, fill=Innoculum)) + 
-    geom_violin(trim=FALSE, draw_quantiles = c(0.25,0.5,0.75),alpha=0.7)+
-    geom_boxplot(width=0.1, fill="white") + theme_minimal()+
-    scale_y_continuous(name="Transfer Efficiency (%)")
-  pT
+  ggplot(AbneyT)+geom_violin(aes(x=Inoculum,y=TE,fill=Inoculum),alpha=0.4,draw_quantiles=c(0.25,0.5,0.75))+
+    geom_jitter(aes(x=Inoculum,y=TE),width=0.01,alpha=0.4)+
+    scale_x_discrete(name="Inoculum")+
+    scale_y_continuous(name="Transfer Efficiency (%)")+
+    theme_pubr()
 
 #standard deviations
 
@@ -73,18 +79,20 @@ sd(AbneyT$TE[AbneyT$Innoculum=="FBS"])
 #sd of Tripartite
 sd(AbneyT$TE[AbneyT$Innoculum=="ASTM Soil Load"])
 
-  #Summary 
+
+#Summary 
   summary(AbneyT)
   # Compute the analysis of variance
     # T.aov <- aov(TE ~ Innoculum, data = AbneyT)
-  kruskal.test(TE ~ Innoculum, data = AbneyT) 
+  kruskal.test(TE ~ Inoculum, data = AbneyT)
+  kruskal_effsize(TE ~ Inoculum, data = AbneyT)
   # Summary of the analysis
     # summary(T.aov)
   #summary(F2HK.test)
   #Post-Hoc
     # tukey.T.aov<-TukeyHSD(T.aov)
     # tukey.T.aov
-  dunnTest(TE ~ Innoculum, data = AbneyT, method = "bh")
+  dunnTest(TE ~ Inoculum, data = AbneyT, method = "bh")
 
  
 #-----------------------------------------------------------------
@@ -92,12 +100,12 @@ sd(AbneyT$TE[AbneyT$Innoculum=="ASTM Soil Load"])
 
 #distribution of TE per INNOCULUM
 windows()
-  pF<-ggplot(AbneyF, aes(x=Innoculum, y=TE, fill=Innoculum)) + 
-    geom_violin(trim=FALSE, draw_quantiles = c(0.25,0.5,0.75),alpha=0.7)+
-    geom_boxplot(width=0.1, fill="white") + theme_minimal()+
-    scale_y_continuous(name="Transfer Efficiency (%)")
-  pF
 
+  ggplot(AbneyF)+geom_violin(aes(x=Inoculum,y=TE,fill=Inoculum),alpha=0.4,draw_quantiles=c(0.25,0.5,0.75))+
+    geom_jitter(aes(x=Inoculum,y=TE),width=0.01,alpha=0.4)+
+    scale_x_discrete(name="Inoculum")+
+    scale_y_continuous(name="Transfer Efficiency (%)")+
+    theme_pubr()
 
 #standard deviations
 
@@ -117,13 +125,26 @@ sd(AbneyF$TE[AbneyF$Innoculum=="ASTM Soil Load"])
   summary(AbneyF)
   # Compute the analysis of variance
     #F.aov <- aov(TE ~ Innoculum, data = AbneyF)
-  kruskal.test(TE ~ Innoculum, data = AbneyF)
+  kruskal.test(TE ~ Inoculum, data = AbneyF)
+  kruskal_effsize(TE ~ Inoculum , data = AbneyF)
   # Summary of the analysis
   #summary(H2LK.test)
   #Post-Hoc
     #tukey.F.aov<-TukeyHSD(F.aov)
     #tukey.F.aov
   dunnTest(TE ~ Innoculum, data = AbneyF, method = "bh")
+  
+#-------------------------------------------------------------------
+  #STATs to see significance between Toilet and Lip TE as requested in review process
+  wilcox_test(TE ~ Innoculum , data = TSB)
+    wilcox_effsize(TE ~ Innoculum , data = TSB)
+  wilcox_test(TE ~ Innoculum , data = FBS)
+    wilcox_effsize(TE ~ Innoculum , data = FBS)
+  wilcox_test(TE ~ Innoculum , data = PBS)
+    wilcox_effsize(TE ~ Innoculum , data = PBS)
+  wilcox_test(TE ~ Innoculum , data = ASTM)
+    wilcox_effsize(TE ~ Innoculum , data = ASTM)
+    
 
 #--------------------------------------------------------------------#
   #---------------------RISK MODEL Rusin-Lopez---------------#
@@ -517,3 +538,26 @@ Fomite.MindingMatrix.R<-function(iterations){
   noro.matrix<- st(noro, digits = 15, add.median = TRUE, out="csv", file= 'R.sum_noro_model.csv')
 }
 Fomite.MindingMatrix.R(10000)
+
+
+#------------------------------------------------------------------------------------
+# STATS for QMRA
+#------------------------------------------------------------------------------------
+ira<-c(IRA$tsb.adenovirus.ir, IRA$pbs.adenovirus.ir,IRA$fbs.adenovirus.ir,IRA$astm.adenovirus.ir)
+matrixtype<-c(rep("tsb",length(IRA$tsb.adenovirus.ir)),
+              rep("pbs",length(IRA$pbs.adenovirus.ir)),
+              rep("fbs",length(IRA$fbs.adenovirus.ir)),
+              rep("astm",length(IRA$astm.adenovirus.ir)))
+frame.for.anova<-data.frame(ira,matrixtype)
+aovresults<-aov(ira ~ matrixtype,data=frame.for.anova)
+summary(aovresults)
+
+#-----Noro-------------------
+irn<-c(IRN$tsb.norovirus.ir, IRN$pbs.norovirus.ir,IRN$fbs.norovirus.ir,IRN$astm.norovirus.ir)
+matrixtype<-c(rep("tsb",length(IRN$tsb.norovirus.ir)),
+              rep("pbs",length(IRN$pbs.norovirus.ir)),
+              rep("fbs",length(IRN$fbs.norovirus.ir)),
+              rep("astm",length(IRN$astm.norovirus.ir)))
+frame.for.anova<-data.frame(irn,matrixtype)
+aovresults_noro<-aov(irn ~ matrixtype,data=frame.for.anova)
+summary(aovresults_noro)
